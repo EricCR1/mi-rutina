@@ -236,6 +236,102 @@
   .ex-check svg { opacity: 0; transition: opacity 0.2s; }
   .ex-check.done svg { opacity: 1; }
 
+  /* TIMER */
+  .timer-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0 14px 36px;
+    border-bottom: 1px solid var(--border);
+    margin-top: -1px;
+  }
+
+  .timer-ring-wrap {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+  }
+
+  .timer-ring-wrap svg {
+    transform: rotate(-90deg);
+  }
+
+  .timer-ring-bg {
+    fill: none;
+    stroke: var(--bg3);
+    stroke-width: 3;
+  }
+
+  .timer-ring-fill {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 113;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear, stroke 0.3s;
+  }
+
+  .timer-ring-fill.warning { stroke: #fb923c; }
+  .timer-ring-fill.urgent  { stroke: #f87171; }
+
+  .timer-num {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .timer-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .timer-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 6px 14px;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .timer-btn:active { transform: scale(0.94); }
+
+  .timer-btn.primary {
+    background: var(--accent);
+    color: #0f0f14;
+    border-color: var(--accent);
+  }
+
+  .timer-label {
+    font-size: 12px;
+    color: var(--muted);
+    flex: 1;
+  }
+
+  .timer-done-msg {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+  }
+
   /* PROGRESS BAR */
   .progress-bar-wrap {
     padding: 0 20px 12px;
@@ -633,6 +729,9 @@ function buildTabs() {
 }
 
 function selectDay(i) {
+  // Stop all running timers
+  Object.values(timers).forEach(t => { if (t.interval) clearInterval(t.interval); });
+  timers = {};
   selectedDay = i;
   buildTabs();
   renderDay();
@@ -664,9 +763,12 @@ function renderDay() {
 
   day.exercises.forEach((ex, idx) => {
     const done = checked[selectedDay].includes(idx);
+
+    // Exercise card
     const card = document.createElement('div');
     card.className = 'exercise-card';
     card.style.animationDelay = `${idx * 40}ms`;
+    card.style.borderBottom = 'none';
     card.innerHTML = `
       <div class="ex-num">${idx + 1}</div>
       <div class="ex-info">
@@ -679,6 +781,25 @@ function renderDay() {
         </svg>
       </button>`;
     list.appendChild(card);
+
+    // Timer row
+    const timerRow = document.createElement('div');
+    timerRow.className = 'timer-row';
+    timerRow.id = `timer-row-${idx}`;
+    timerRow.innerHTML = `
+      <div class="timer-ring-wrap">
+        <svg width="44" height="44" viewBox="0 0 44 44">
+          <circle class="timer-ring-bg" cx="22" cy="22" r="18"/>
+          <circle class="timer-ring-fill" id="ring-${idx}" cx="22" cy="22" r="18"/>
+        </svg>
+        <div class="timer-num" id="tnum-${idx}">2:00</div>
+      </div>
+      <div class="timer-controls">
+        <span class="timer-label" id="tlabel-${idx}">Descanso</span>
+        <button class="timer-btn primary" id="tbtn-${idx}" onclick="timerAction(${idx})">Iniciar</button>
+        <button class="timer-btn" onclick="timerReset(${idx})">↺</button>
+      </div>`;
+    list.appendChild(timerRow);
   });
 
   updateProgress();
@@ -701,6 +822,88 @@ function updateProgress() {
   document.getElementById('progress-fill').style.width = pct + '%';
   document.getElementById('progress-count').textContent = `${done} / ${total}`;
   document.getElementById('progress-text').textContent = pct === 100 ? '¡Rutina completada! 🏆' : 'Ejercicios';
+}
+
+// TIMER STATE
+const TIMER_DURATION = 120; // 2 minutes
+let timers = {}; // { idx: { remaining, interval, running } }
+
+function getTimer(idx) {
+  if (!timers[idx]) timers[idx] = { remaining: TIMER_DURATION, interval: null, running: false };
+  return timers[idx];
+}
+
+function timerAction(idx) {
+  const t = getTimer(idx);
+  if (t.running) {
+    // Pause
+    clearInterval(t.interval);
+    t.running = false;
+    document.getElementById(`tbtn-${idx}`).textContent = 'Reanudar';
+    document.getElementById(`tlabel-${idx}`).textContent = 'Pausado';
+  } else {
+    // Start / Resume
+    if (t.remaining <= 0) { timerReset(idx); return; }
+    t.running = true;
+    document.getElementById(`tbtn-${idx}`).textContent = 'Pausar';
+    document.getElementById(`tlabel-${idx}`).textContent = 'Descansando...';
+    t.interval = setInterval(() => {
+      t.remaining--;
+      updateTimerUI(idx);
+      if (t.remaining <= 0) {
+        clearInterval(t.interval);
+        t.running = false;
+        timerFinished(idx);
+      }
+    }, 1000);
+  }
+}
+
+function timerReset(idx) {
+  const t = getTimer(idx);
+  clearInterval(t.interval);
+  t.running = false;
+  t.remaining = TIMER_DURATION;
+  updateTimerUI(idx);
+  const btn = document.getElementById(`tbtn-${idx}`);
+  if (btn) {
+    btn.textContent = 'Iniciar';
+    btn.className = 'timer-btn primary';
+  }
+  const lbl = document.getElementById(`tlabel-${idx}`);
+  if (lbl) lbl.textContent = 'Descanso';
+  const ring = document.getElementById(`ring-${idx}`);
+  if (ring) { ring.className = 'timer-ring-fill'; }
+}
+
+function updateTimerUI(idx) {
+  const t = getTimer(idx);
+  const m = Math.floor(t.remaining / 60);
+  const s = t.remaining % 60;
+  const display = `${m}:${s.toString().padStart(2, '0')}`;
+  const numEl = document.getElementById(`tnum-${idx}`);
+  if (numEl) numEl.textContent = display;
+
+  // Ring progress
+  const circumference = 113;
+  const offset = circumference - (t.remaining / TIMER_DURATION) * circumference;
+  const ring = document.getElementById(`ring-${idx}`);
+  if (ring) {
+    ring.style.strokeDashoffset = offset;
+    ring.className = 'timer-ring-fill' +
+      (t.remaining <= 30 ? ' urgent' : t.remaining <= 60 ? ' warning' : '');
+  }
+}
+
+function timerFinished(idx) {
+  // Vibrate if supported
+  if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
+  const lbl = document.getElementById(`tlabel-${idx}`);
+  if (lbl) lbl.innerHTML = '<span class="timer-done-msg">¡A la siguiente! 💪</span>';
+  const btn = document.getElementById(`tbtn-${idx}`);
+  if (btn) { btn.textContent = 'Repetir'; btn.className = 'timer-btn'; }
+  const numEl = document.getElementById(`tnum-${idx}`);
+  if (numEl) numEl.textContent = '0:00';
 }
 
 function openNutrition() {

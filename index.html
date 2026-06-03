@@ -622,25 +622,25 @@ const DAYS = [
     name: 'Lunes',
     focus: 'Espalda + Pecho',
     exercises: [
-      { name: 'Dominadas asistidas o negativas', sets: '4×6-10' },
-      { name: 'Remo con mancuerna', sets: '4×10-12' },
-      { name: 'Pullover con mancuerna', sets: '3×12' },
-      { name: 'Flexiones', sets: '4×al fallo' },
-      { name: 'Press de pecho en el suelo con mancuernas', sets: '4×8-12' },
-      { name: 'Aperturas en el suelo', sets: '3×12-15' },
+      { name: 'Dominadas', sets: '4 series', note: 'Menos de 4 reps → negativas · Más de 4 → normales' },
+      { name: 'Remo con mancuerna', sets: '4×8-12' },
+      { name: 'Pullover con mancuerna', sets: '3×10-15' },
+      { name: 'Press de pecho en suelo', sets: '4×8-12' },
+      { name: 'Flexiones', sets: '3 series', note: 'Deja 1-2 reps en reserva' },
     ]
   },
   {
     short: 'MAR',
     name: 'Martes',
-    focus: 'Brazo Completo',
+    focus: 'Brazo + Hombro',
     exercises: [
-      { name: 'Curl alterno', sets: '4×10-12' },
-      { name: 'Curl martillo', sets: '4×10-12' },
-      { name: 'Curl concentrado', sets: '3×12' },
-      { name: 'Extensión de tríceps sobre cabeza', sets: '4×10-12' },
-      { name: 'Press cerrado en suelo', sets: '4×10' },
-      { name: 'Fondos entre sillas', sets: '3×al fallo' },
+      { name: 'Curl alterno', sets: '4×8-12', group: 'Bíceps' },
+      { name: 'Curl martillo', sets: '3×8-12', group: 'Bíceps' },
+      { name: 'Press cerrado en suelo', sets: '4×8-12', group: 'Tríceps' },
+      { name: 'Extensión sobre la cabeza', sets: '4×10-12', group: 'Tríceps' },
+      { name: 'Press militar', sets: '4×8-12', group: 'Hombro' },
+      { name: 'Elevaciones laterales', sets: '5×12-20', group: 'Hombro' },
+      { name: 'Pájaros', sets: '3×12-20', group: 'Hombro' },
     ]
   },
   {
@@ -648,37 +648,37 @@ const DAYS = [
     name: 'Miércoles',
     focus: 'Pierna',
     exercises: [
-      { name: 'Sentadilla goblet', sets: '5×10-15' },
-      { name: 'Peso muerto rumano', sets: '4×10' },
-      { name: 'Zancadas', sets: '4×12' },
-      { name: 'Sentadilla búlgara', sets: '3×10' },
-      { name: 'Elevaciones de pantorrilla', sets: '5×20' },
+      { name: 'Sentadilla búlgara', sets: '4×8-12' },
+      { name: 'Peso muerto rumano', sets: '4×8-12' },
+      { name: 'Sentadilla goblet', sets: '3×12-15' },
+      { name: 'Pantorrillas', sets: '5×15-25' },
     ]
   },
   {
     short: 'JUE',
     name: 'Jueves',
-    focus: 'Hombro + Trícep + Pecho',
+    focus: 'Hombro + Tríceps + Pecho',
     exercises: [
-      { name: 'Press militar con mancuernas', sets: '4×8-12' },
-      { name: 'Elevaciones laterales', sets: '4×12-15' },
-      { name: 'Pájaros', sets: '4×12-15' },
-      { name: 'Flexiones inclinadas', sets: '4×al fallo' },
-      { name: 'Press pecho en suelo', sets: '4×10' },
-      { name: 'Extensión de tríceps', sets: '4×12' },
+      { name: 'Press militar', sets: '4×8-12', group: 'Hombro' },
+      { name: 'Elevaciones laterales', sets: '5×12-20', group: 'Hombro' },
+      { name: 'Pájaros', sets: '3×12-20', group: 'Hombro' },
+      { name: 'Press de pecho en suelo', sets: '4×8-12', group: 'Pecho' },
+      { name: 'Flexiones con pies elevados', sets: '3 series', note: '1-2 reps antes del fallo', group: 'Pecho' },
+      { name: 'Press cerrado en suelo', sets: '4×8-12', group: 'Tríceps' },
+      { name: 'Extensión sobre la cabeza', sets: '3×10-12', group: 'Tríceps' },
     ]
   },
   {
     short: 'VIE',
     name: 'Viernes',
-    focus: 'Espalda + Bícep',
+    focus: 'Espalda + Bíceps',
     exercises: [
-      { name: 'Dominadas', sets: '4×al máximo' },
-      { name: 'Remo mancuerna pesado', sets: '4×8-10' },
-      { name: 'Pullover', sets: '3×12' },
-      { name: 'Curl alterno', sets: '4×10' },
-      { name: 'Curl martillo', sets: '4×10' },
-      { name: 'Curl concentrado', sets: '3×12' },
+      { name: 'Dominadas', sets: '4 series', note: 'Misma regla del lunes' },
+      { name: 'Remo con mancuerna', sets: '4×8-12' },
+      { name: 'Pullover', sets: '3×10-15' },
+      { name: 'Curl alterno', sets: '4×8-12', group: 'Bíceps' },
+      { name: 'Curl martillo', sets: '3×8-12', group: 'Bíceps' },
+      { name: 'Curl concentrado', sets: '3×10-12', group: 'Bíceps' },
     ]
   },
   {
@@ -686,11 +686,10 @@ const DAYS = [
     name: 'Sábado',
     focus: 'Pierna',
     exercises: [
-      { name: 'Peso muerto rumano', sets: '4×8-10' },
-      { name: 'Sentadilla goblet', sets: '4×12' },
-      { name: 'Búlgaras', sets: '4×10' },
-      { name: 'Hip thrust con mancuerna', sets: '4×12' },
-      { name: 'Pantorrillas', sets: '5×20' },
+      { name: 'Peso muerto rumano', sets: '4×8-12' },
+      { name: 'Sentadilla búlgara', sets: '4×8-12' },
+      { name: 'Sentadilla goblet', sets: '3×12-15' },
+      { name: 'Pantorrillas', sets: '5×15-25' },
     ]
   },
   {
@@ -761,8 +760,19 @@ function renderDay() {
     return;
   }
 
+  let lastGroup = null;
+
   day.exercises.forEach((ex, idx) => {
     const done = checked[selectedDay].includes(idx);
+
+    // Group header (Bíceps / Tríceps / Hombro / etc.)
+    if (ex.group && ex.group !== lastGroup) {
+      lastGroup = ex.group;
+      const groupEl = document.createElement('div');
+      groupEl.style.cssText = 'padding: 14px 0 6px 36px; font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); opacity: 0.7;';
+      groupEl.textContent = ex.group;
+      list.appendChild(groupEl);
+    }
 
     // Exercise card
     const card = document.createElement('div');
@@ -774,6 +784,7 @@ function renderDay() {
       <div class="ex-info">
         <div class="ex-name" style="${done ? 'text-decoration:line-through;opacity:0.45;' : ''}">${ex.name}</div>
         <div class="ex-sets">${ex.sets}</div>
+        ${ex.note ? `<div style="font-size:11px;color:var(--accent);opacity:0.8;margin-top:3px;">⚡ ${ex.note}</div>` : ''}
       </div>
       <button class="ex-check ${done ? 'done' : ''}" onclick="toggleEx(${idx})" aria-label="Marcar como hecho">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
